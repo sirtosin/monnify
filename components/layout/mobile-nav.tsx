@@ -25,14 +25,49 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 }
 
 const navItems = [
-  { label: "Dashboard", href: "/", icon: "LayoutDashboard", themeLabel: "Echo Console" },
-  { label: "Soundboard", href: "/soundboard", icon: "Radio", themeLabel: "Payment Connections" },
-  { label: "Statements", href: "/statements", icon: "FileSpreadsheet", themeLabel: "Bank Statements" },
-  { label: "Ledger", href: "/ledger", icon: "BookOpen", themeLabel: "Bank Ledger" },
-  { label: "Distortions", href: "/unmatched", icon: "AlertTriangle", themeLabel: "Unmatched Settlements" },
-  { label: "Insights", href: "/insights", icon: "Search", themeLabel: "Insight Bar" },
-  { label: "Settings", href: "/settings", icon: "Settings", themeLabel: "Configuration" },
-]
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: "LayoutDashboard",
+    themeLabel: "Echo Console",
+  },
+  {
+    label: "Soundboard",
+    href: "/dashboard/soundboard",
+    icon: "Radio",
+    themeLabel: "Payment Connections",
+  },
+  {
+    label: "Statements",
+    href: "/dashboard/statements",
+    icon: "FileSpreadsheet",
+    themeLabel: "Bank Statements",
+  },
+  {
+    label: "Ledger",
+    href: "/dashboard/ledger",
+    icon: "BookOpen",
+    themeLabel: "Bank Ledger",
+  },
+  // {
+  //   label: "Distortions",
+  //   href: "/dashboard/unmatched",
+  //   icon: "AlertTriangle",
+  //   themeLabel: "Unmatched Settlements",
+  // },
+  // {
+  //   label: "Insights",
+  //   href: "/dashboard/insights",
+  //   icon: "Search",
+  //   themeLabel: "Insight Bar",
+  // },
+  {
+    label: "Settings",
+    href: "/dashboard/settings",
+    icon: "Settings",
+    themeLabel: "Configuration",
+  },
+];
 
 export function MobileNav() {
   const pathname = usePathname()

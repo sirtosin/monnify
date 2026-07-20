@@ -54,18 +54,7 @@ export default function SoundboardPage() {
       }
     } catch (err: any) {
       // Fallback: create demo connection
-      const newConnection: PayfacConnection = {
-        id: `conn_${Date.now()}`,
-        ...data,
-        webhook_url: `https://echo.app/api/webhooks/${data.payfac_source.toLowerCase()}/${Math.random().toString(36).slice(2)}`,
-        status: "connecting",
-        is_active: true,
-        last_sync_at: null,
-        last_webhook_at: null,
-        created_at: new Date().toISOString(),
-      }
-      dispatch(addConnection(newConnection))
-      success("Connection created (demo mode)", "Using local data since API is unavailable.")
+   
     }
   }
 

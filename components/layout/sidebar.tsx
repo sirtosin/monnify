@@ -98,7 +98,7 @@ export function Sidebar() {
       animate={{ width: sidebarOpen ? 260 : 72 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen border-r bg-card/95 backdrop-blur-xl flex flex-col",
+        "fixed left-0 top-0 z-40 h-screen border-r bg-card/95 backdrop-blur-xl hidden lg:flex flex-col",
         sidebarOpen ? "w-[260px]" : "w-[72px]",
       )}
     >
