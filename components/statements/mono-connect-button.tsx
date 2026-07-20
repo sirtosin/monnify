@@ -1,7 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import { Loader2, Landmark } from "lucide-react";
-import { useMono } from "react-mono-js";
+import MonoConnect from "@mono.co/connect.js";
 import { Button } from "@/components/ui/button";
 import { useLinkMonoAccountMutation } from "@/lib/store/api/echo-api";
 import { useToast } from "@/lib/hooks/use-toast";
@@ -18,21 +19,15 @@ export function MonoConnectButton({
   const [linkMonoAccount, { isLoading }] = useLinkMonoAccountMutation();
   const { success, error } = useToast();
 
-  const handleMono = useMono({
-    public_key: process.env.NEXT_PUBLIC_MONO_PUBLIC_KEY as string,
-  });
+  const monoConnect = useMemo(() => {
+    if (typeof window === "undefined") return null;
 
-  const openWidget = () => {
-    if (!process.env.NEXT_PUBLIC_MONO_PUBLIC_KEY) {
-      error("Mono is not configured", "Missing NEXT_PUBLIC_MONO_PUBLIC_KEY.");
-      return;
-    }
-
-    handleMono({
-      onClose: () => null,
-      onSuccess: async (response: { code: string }) => {
+    const instance = new MonoConnect({
+      key: process.env.NEXT_PUBLIC_MONO_PUBLIC_KEY as string,
+      onClose: () => {},
+      onSuccess: async ({ code }: { code: string }) => {
         try {
-          await linkMonoAccount({ code: response.code }).unwrap();
+          await linkMonoAccount({ code }).unwrap();
           success(
             "Bank account linked",
             "Your account was connected via Mono.",
@@ -46,6 +41,17 @@ export function MonoConnectButton({
         }
       },
     });
+    instance.setup();
+    return instance;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const openWidget = () => {
+    if (!process.env.NEXT_PUBLIC_MONO_PUBLIC_KEY) {
+      error("Mono is not configured", "Missing NEXT_PUBLIC_MONO_PUBLIC_KEY.");
+      return;
+    }
+    monoConnect?.open();
   };
 
   return (
@@ -53,7 +59,7 @@ export function MonoConnectButton({
       type="button"
       variant="outline"
       onClick={openWidget}
-      disabled={disabled || isLoading}
+      disabled={disabled || isLoading || !monoConnect}
       className="w-full sm:w-auto"
     >
       {isLoading ? (
