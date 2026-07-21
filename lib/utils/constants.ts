@@ -71,8 +71,8 @@ export const BANKS = [
 
 export const PAYFAC_SOURCES = [
   { value: "MONNIFY", label: "Monnify", color: "#0ea5e9" },
-  // { value: "PAYSTACK", label: "Paystack", color: "#10b981" },
-  // { value: "FLUTTERWAVE", label: "Flutterwave", color: "#8b5cf6" },
+  { value: "PAYSTACK", label: "Paystack", color: "#10b981" },
+  { value: "FLUTTERWAVE", label: "Flutterwave", color: "#8b5cf6" },
 ]
 
 export const CONNECTION_STATUS_CONFIG = {
