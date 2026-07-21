@@ -11,7 +11,8 @@ import {
   Search,
   Settings,
   Waves,
-} from "lucide-react"
+  ArrowLeftRight,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn"
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -22,7 +23,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   AlertTriangle,
   Search,
   Settings,
-}
+  ArrowLeftRight,
+};
 
 const navItems = [
   {

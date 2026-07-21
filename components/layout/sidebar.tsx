@@ -36,7 +36,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   AlertTriangle,
   Search,
   Settings,
-  
+  ArrowLeftRight,
 };
 
 const navItems = [
