@@ -109,7 +109,7 @@ export const echoApi = createApi({
         method: "POST",
       }),
 
-      invalidatesTags: ["Connections", "Ledger", "Dashboard"],
+      invalidatesTags: ["Connections", "Ledger", "Dashboard", "Transactions"],
     }),
     updatePayfacConnection: builder.mutation<
       ApiResponse<PayfacConnection>,
@@ -152,7 +152,7 @@ export const echoApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Statements", "Ledger", "Dashboard"],
+      invalidatesTags: ["Statements", "Ledger", "Dashboard", "Transactions"],
     }),
     updateReconciliationSchedule: builder.mutation<
       ApiResponse<ReconciliationSchedule>,
@@ -198,7 +198,7 @@ export const echoApi = createApi({
         url: `/mono/connections/${id}/sync`,
         method: "POST",
       }),
-      invalidatesTags: ["Mono", "Ledger", "Dashboard"],
+      invalidatesTags: ["Mono", "Ledger", "Dashboard", "Transactions"],
     }),
     unlinkMonoAccount: builder.mutation<ApiResponse<void>, string>({
       query: (id) => ({
@@ -214,7 +214,7 @@ export const echoApi = createApi({
         url: "/reconciliation/run",
         method: "POST",
       }),
-      invalidatesTags: ["Settlements", "Dashboard", "Ledger"],
+      invalidatesTags: ["Settlements", "Dashboard", "Ledger", "Transactions"],
     }),
     getDashboardMetrics: builder.query<ApiResponse<DashboardMetrics>, void>({
       query: () => "/dashboard/metrics",
