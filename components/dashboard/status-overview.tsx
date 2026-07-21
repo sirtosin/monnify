@@ -25,7 +25,7 @@ export function StatusOverview() {
         <p className="text-xs text-muted-foreground">Live payment processor status</p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {connections.map((conn) => (
+        {connections.map((conn:any) => (
           <div key={conn.id} className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">

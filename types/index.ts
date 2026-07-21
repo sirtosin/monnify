@@ -29,7 +29,7 @@ export type ConnectionStatus =
   | "disconnected"
   | "error";
 
-export interface PayfacConnection2 {
+export interface PayfacConnection {
   id: string;
   payfac_source: PayfacSource;
   environment: Environment;
@@ -42,10 +42,13 @@ export interface PayfacConnection2 {
   last_sync_at: string | null;
   last_webhook_at: string | null;
   created_at: string;
+  last_pulled_at: string | null;
+  ingest_mode: string;
+  pull_interval_minutes:number
 }
 
 // Statement Types
-export interface BankStatement2{
+export interface BankStatement{
   id: string;
   bank_name: string;
   file_name: string;
@@ -182,7 +185,7 @@ export type ProcessingStep = {
   status: "pending" | "active" | "completed";
 };
 
-export interface PayfacConnection {
+export interface PayfacConnection2 {
   id: string;
   payfac_source: string;
   environment: "SANDBOX" | "LIVE";
@@ -209,7 +212,7 @@ export interface BankLedgerEntry {
   created_at: string;
 }
 
-export interface BankStatement {
+export interface BankStatement2 {
   id: string;
   bank_name: string;
   original_filename: string;

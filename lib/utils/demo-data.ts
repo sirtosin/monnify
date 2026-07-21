@@ -23,20 +23,7 @@ export const demoUser: User = {
 }
 
 export const demoConnections: PayfacConnection[] = [
-  {
-    id: "conn_001",
-    payfac_source: "MONNIFY",
-    environment: "SANDBOX",
-    api_key: "MK_TEST_XXXX",
-    secret_key: "SK_TEST_XXXX",
-    contract_code: "100200300",
-    webhook_url: "https://echo.app/api/webhooks/monnify/abc123",
-    status: "connected",
-    is_active: true,
-    last_sync_at: "2026-07-19T14:30:00Z",
-    last_webhook_at: "2026-07-19T15:45:00Z",
-    created_at: "2026-01-15T10:00:00Z",
-  },
+
 ]
 
 export const demoStatements: BankStatement[] = [
@@ -198,15 +185,7 @@ export const demoMetrics: DashboardMetrics2 = {
 }
 
 export const demoMonoConnections: MonoConnection[] = [
-  {
-    id: "mono_001",
-    institution: "GTBank",
-    account_number: "0123456789",
-    account_name: "Bright Store Ltd",
-    status: "connected",
-    last_sync_at: "2026-07-19T12:00:00Z",
-    created_at: "2026-06-01T10:00:00Z",
-  },
+
 ]
 
 export const demoAuditTrail: AuditEntry[] = [

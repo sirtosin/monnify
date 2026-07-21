@@ -15,7 +15,6 @@ export default function LedgerPage() {
 
   // RTK Query hook
   const { data: apiEntries } = useGetLedgerEntriesQuery()
-console.log('apiEntries', apiEntries)
   // Sync API data to Redux store
   useEffect(() => {
     if (apiEntries?.data) {

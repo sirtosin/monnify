@@ -26,7 +26,7 @@ export default function UnmatchedPage() {
   )
   const { success } = useToast()
   const [detailOpen, setDetailOpen] = useState(false)
-console.log('unm', unmatched)
+
   const handleSelect = (settlement: SettlementMatch) => {
     dispatch(setSelectedSettlement(settlement))
     setDetailOpen(true)

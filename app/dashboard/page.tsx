@@ -103,7 +103,6 @@ export default function DashboardPage() {
       bgColor: "bg-red-500/10",
     },
   ];
-console.log('metrics', metrics)
   // ---- Settlement funnel (per echo.txt §3), mapped to real counts ----
   const settlementCards = [
     {

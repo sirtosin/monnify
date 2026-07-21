@@ -34,7 +34,6 @@ export function ConnectionCard({
   const refresh = async (id: string) => {
     setLoading(true);
     const resp = await pullPayfacTransactions(id);
-    console.log("resp", resp);
     setLoading(false);
     success(resp.data?.message || "Updated");
   };
@@ -46,7 +45,6 @@ export function ConnectionCard({
     setLoading(false);
   };
 
-  console.log("connection", connection);
   return (
     <motion.div
       layout
