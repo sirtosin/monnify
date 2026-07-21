@@ -8,47 +8,29 @@ import {
   AlertTriangle,
   HelpCircle,
   Wallet,
-  TrendingUp,
-  Activity,
   Loader2,
   XCircleIcon,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  Legend,
-} from "recharts";
 import {
   useGetDashboardMetricsQuery,
   useGetConnectionsQuery,
+  useGetLedgerEntriesQuery,
   useRunReconciliationMutation,
 } from "@/lib/store/api/echo-api";
 import { setMetrics } from "@/lib/store/slices/dashboard-slice";
 import {
   formatCurrency,
-  formatPercentage,
   formatRelativeTime,
   getStatusColor,
 } from "@/lib/utils/formatters";
 import type { RootState } from "@/lib/store";
 
-const COLORS = {
-  matched: "#10b981",
-  unmatched: "#ef4444",
-  review: "#f59e0b",
-};
-
 const container = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.1 } },
 };
-
 const item = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0 },
@@ -59,25 +41,22 @@ export default function DashboardPage() {
   const { data: metricsData, isLoading: metricsLoading } =
     useGetDashboardMetricsQuery();
   const { data: connectionsData } = useGetConnectionsQuery();
+  const { data: unmatchedEntries } = useGetLedgerEntriesQuery({
+    reconciled: false,
+  });
   const [runReconciliation] = useRunReconciliationMutation();
-  const { metrics: localMetrics } = useSelector(
-    (state: RootState) => state.dashboard,
-  );
-  const runRecon = async () => {
-    const resp = await runReconciliation();
-    console.log("resp", resp);
-  };
-  console.log("metricsData", metricsData);
-  // Sync RTK Query data to Redux store for components that read from store
+
   useEffect(() => {
-    runRecon();
+    runReconciliation();
     if (metricsData?.data) {
       dispatch(setMetrics(metricsData.data));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [metricsData, dispatch]);
 
   const metrics = metricsData?.data;
   const connections = connectionsData?.data || [];
+  const exceptions = unmatchedEntries?.data || [];
 
   if (metricsLoading && !metrics) {
     return (
@@ -89,85 +68,66 @@ export default function DashboardPage() {
 
   if (!metrics) return null;
 
-  const cards = [
+  // ---- Executive Summary (per echo.txt §1), mapped to real API fields ----
+  const summaryCards = [
     {
-      title: "Reconciled Volume",
-      subtitle: "Echo Volume",
-      value: formatCurrency(metrics.escrow_resonance || 0),
+      title: "Cleared Volume",
+      subtitle: "Confirmed in bank",
+      value: formatCurrency(metrics.cleared_echo_cash),
       icon: CheckCircle2,
       color: "text-emerald-500",
       bgColor: "bg-emerald-500/10",
-      // trend: `+${formatPercentage(metrics.settlement_success_rate)}`,
     },
     {
-      title: "Unmatched",
-      subtitle: "Distorted Signals",
-      value: metrics.counts.unreconciled_entries || 0,
-      icon: AlertTriangle,
-      color: "text-red-500",
-      bgColor: "bg-red-500/10",
-      // trend: `${metrics.recent_matches?.filter((m) => m.status === "unmatched").length || 0} settlements`,
-    },
-    {
-      title: "Needs Review",
-      subtitle: "Pending Verification",
-      value: metrics.counts.settlements_pending?.toString(),
-      icon: HelpCircle,
-      color: "text-amber-500",
-      bgColor: "bg-amber-500/10",
-      trend: "Requires attention",
-    },
-    // {
-    //   title: "Settled",
-    //   subtitle: "All Good",
-    //   value: metrics.counts.settlements_settled?.toString(),
-    //   icon: CheckCircle2,
-    //   color: "text-emerald-500",
-    //   bgColor: "bg-emerald-500/10",
-    //   trend: "",
-    // },
-    {
-      title: "Mismatched",
-      subtitle: "Check transactions",
-      value: metrics.counts.settlements_mismatch?.toString(),
-      icon: XCircleIcon,
-      color: "text-red-500",
-      bgColor: "bg-red-500/10",
-      trend: "Requires attention",
-    },
-    {
-      title: "Uncleared Amount",
-      subtitle: "Outstanding Balance",
-      value: metrics.counts.unreconciled_entries || 0,
+      title: "Escrow / In Transit",
+      subtitle: "Awaiting settlement confirmation",
+      value: formatCurrency(metrics.escrow_resonance),
       icon: Wallet,
       color: "text-sky-600",
       bgColor: "bg-sky-500/10",
-      trend: "Awaiting settlement",
+    },
+    {
+      title: "Unreconciled Entries",
+      subtitle: "Bank credits with no match yet",
+      value: metrics.counts.unreconciled_entries,
+      icon: HelpCircle,
+      color: "text-amber-500",
+      bgColor: "bg-amber-500/10",
+    },
+    {
+      title: "Unmatched Variance",
+      subtitle: `${metrics.distorted_signals.count} affected settlement(s)`,
+      value: formatCurrency(Math.abs(metrics.distorted_signals.total_variance)),
+      icon: AlertTriangle,
+      color: "text-red-500",
+      bgColor: "bg-red-500/10",
     },
   ];
-
-  const chartData = [
+console.log('metrics', metrics)
+  // ---- Settlement funnel (per echo.txt §3), mapped to real counts ----
+  const settlementCards = [
     {
-      name: "Matched",
+      title: "Settlements Settled",
       value: metrics.counts.settlements_settled,
-      color: COLORS.matched,
+      icon: CheckCircle2,
+      color: "text-emerald-500",
+      bgColor: "bg-emerald-500/10",
     },
     {
-      name: "Unmatched",
+      title: "Settlements Pending",
+      value: metrics.counts.settlements_pending,
+      icon: HelpCircle,
+      color: "text-amber-500",
+      bgColor: "bg-amber-500/10",
+    },
+    {
+      title: "Settlements Mismatched",
       value: metrics.counts.settlements_mismatch,
-      color: COLORS.unmatched,
-    },
-    {
-      name: "Needs Review",
-      value: metrics.counts.settlements_pending * 10000,
-      color: COLORS.review,
+      icon: XCircleIcon,
+      color: "text-red-500",
+      bgColor: "bg-red-500/10",
     },
   ];
-
-  const total =
-    metrics.counts.unreconciled_entries + metrics.counts.settlements_mismatch;
-  const reconciledPercent =
-    total > 0 ? (metrics.counts.settlements_settled / total) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -178,14 +138,14 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Metrics Cards */}
+      {/* Executive Summary */}
       <motion.div
         variants={container}
         initial="hidden"
         animate="show"
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
-        {cards.map((card, index) => {
+        {summaryCards.map((card, index) => {
           const Icon = card.icon;
           return (
             <motion.div key={index} variants={item}>
@@ -205,9 +165,6 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{card.value}</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {card.trend}
-                  </p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -215,49 +172,32 @@ export default function DashboardPage() {
         })}
       </motion.div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Chart */}
-        {/* <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Settlement Distribution
-            </CardTitle>
-            <p className="text-xs text-muted-foreground">
-              Signal → Resonance → Echo
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[240px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={chartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value: number) => `₦${value.toLocaleString()}`}
-                    contentStyle={{
-                      borderRadius: "8px",
-                      border: "1px solid hsl(var(--border))",
-                      background: "hsl(var(--card))",
-                    }}
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card> */}
+      {/* Settlement funnel */}
+      <div>
+        <h3 className="text-lg font-semibold mb-3">Settlements</h3>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {settlementCards.map((card, index) => {
+            const Icon = card.icon;
+            return (
+              <Card key={index}>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {card.title}
+                  </CardTitle>
+                  <div className={`rounded-lg p-2 ${card.bgColor}`}>
+                    <Icon className={`h-4 w-4 ${card.color}`} />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{card.value}</div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
 
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Connection Health */}
         <Card>
           <CardHeader>
@@ -265,26 +205,25 @@ export default function DashboardPage() {
               Connection Health
             </CardTitle>
             <p className="text-xs text-muted-foreground">
-              Live payment processor status
+              Live payment gateway status
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            {connections.map((conn) => (
+            {connections.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                No processors connected yet.
+              </p>
+            )}
+            {connections.map((conn:any) => (
               <div key={conn.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div
-                      className={`h-3 w-3 rounded-full ${
-                        conn.status === "connected"
-                          ? "bg-emerald-500 animate-pulse"
-                          : conn.status === "connecting"
-                            ? "bg-amber-500 animate-pulse"
-                            : conn.status === "disconnected"
-                              ? "bg-muted-foreground"
-                              : "bg-red-500 animate-pulse"
-                      }`}
-                    />
-                  </div>
+                  <div
+                    className={`h-3 w-3 rounded-full ${
+                      conn.is_active
+                        ? "bg-emerald-500 animate-pulse"
+                        : "bg-muted-foreground"
+                    }`}
+                  />
                   <div>
                     <p className="text-sm font-medium">{conn.payfac_source}</p>
                     <p className="text-xs text-muted-foreground">
@@ -294,84 +233,52 @@ export default function DashboardPage() {
                 </div>
                 <Badge
                   variant="outline"
-                  className={getStatusColor(conn.status)}
+                  className={getStatusColor(
+                    conn.is_active ? "connected" : "disconnected",
+                  )}
                 >
-                  {conn.status}
+                  {conn.is_active ? "active" : "inactive"}
                 </Badge>
               </div>
             ))}
+          </CardContent>
+        </Card>
 
-            {/* <div className="pt-4 border-t">
-              <div className="flex justify-between text-sm mb-2">
-                <span>Settlement Success Rate</span>
-                <span className="font-medium">
-                  {formatPercentage(metrics.settlement_success_rate)}
-                </span>
+        {/* Needs Review — closest real proxy for echo.txt's exceptions table */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Needs Review</CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Bank credits without a matching settlement
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {exceptions.length === 0 && (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                Nothing to review right now.
+              </p>
+            )}
+            {exceptions.slice(0, 6).map((entry:any) => (
+              <div
+                key={entry.id}
+                className="flex items-center justify-between border-b pb-2 last:border-0"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate max-w-[220px]">
+                    {entry.narration}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {entry.bank_name} · {formatRelativeTime(entry.created_at)}
+                  </p>
+                </div>
+                <div className="text-sm font-medium shrink-0">
+                  {formatCurrency(Number(entry.amount))}
+                </div>
               </div>
-              <div className="h-2 rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-emerald-500 transition-all duration-1000"
-                  style={{ width: `${reconciledPercent}%` }}
-                />
-              </div>
-            </div> */}
+            ))}
           </CardContent>
         </Card>
       </div>
-
-      {/* Recent Activity */}
-      {/* <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
-          <p className="text-xs text-muted-foreground">
-            Latest settlement signals
-          </p>
-        </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="h-[280px]">
-            {metrics.recent_matches?.length ? (
-              metrics.recent_matches.map((match, index) => (
-                <motion.div
-                  key={match.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-muted/50 transition-colors cursor-pointer"
-                >
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium truncate max-w-[200px]">
-                        {match.payment_reference}
-                      </span>
-                      <Badge
-                        variant="outline"
-                        className={getStatusColor(match.status)}
-                      >
-                        {match.status.replace("_", " ")}
-                      </Badge>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {match.transaction_reference}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium">
-                      {formatCurrency(match.expected_amount)}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {formatRelativeTime(match.created_at)}
-                    </div>
-                  </div>
-                </motion.div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No recent reconciliation activity
-              </p>
-            )}
-          </ScrollArea>
-        </CardContent>
-      </Card> */}
     </div>
   );
 }

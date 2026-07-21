@@ -1,78 +1,77 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { PAYFAC_SOURCES } from "@/lib/utils/constants"
+} from "@/components/ui/select";
+import { PAYFAC_SOURCES } from "@/lib/utils/constants";
+import type { ConnectProcessorRequest } from "@/types/api";
 
 interface ConnectDialogProps {
-  onConnect: (data: {
-    payfac_source: string
-    environment: string
-    api_key: string
-    secret_key: string
-    contract_code?: string
-  }) => void
+  onConnect: (data: ConnectProcessorRequest) => void;
 }
 
+const initialFormState: ConnectProcessorRequest = {
+  payfac_source: "MONNIFY",
+  environment: "SANDBOX",
+  api_key: "",
+  secret_key: "",
+  contract_code: "",
+  ingest_mode: "WEBHOOK",
+  pull_interval_minutes: 30,
+};
+
 export function ConnectDialog({ onConnect }: ConnectDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [formData, setFormData] = useState({
-    payfac_source: "MONNIFY",
-    environment: "SANDBOX",
-    api_key: "",
-    secret_key: "",
-    contract_code: "",
-  })
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] =
+    useState<ConnectProcessorRequest>(initialFormState);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onConnect(formData)
-    setOpen(false)
-    setFormData({
-      payfac_source: "MONNIFY",
-      environment: "SANDBOX",
-      api_key: "",
-      secret_key: "",
-      contract_code: "",
-    })
-  }
+    e.preventDefault();
+    onConnect(formData);
+    setOpen(false);
+    setFormData(initialFormState);
+  };
+
+  const isApiPull = formData.ingest_mode === "API_PULL";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Connect Processor
+          Connect Gateway
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>Connect Payment Processor</DialogTitle>
+          <DialogTitle>Connect Payment Gateway</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Processor</Label>
+            <Label>Gateway</Label>
             <Select
               value={formData.payfac_source}
               onValueChange={(v) =>
-                setFormData({ ...formData, payfac_source: v })
+                setFormData({
+                  ...formData,
+                  payfac_source: v as ConnectProcessorRequest["payfac_source"],
+                })
               }
             >
               <SelectTrigger>
@@ -93,7 +92,10 @@ export function ConnectDialog({ onConnect }: ConnectDialogProps) {
             <Select
               value={formData.environment}
               onValueChange={(v) =>
-                setFormData({ ...formData, environment: v })
+                setFormData({
+                  ...formData,
+                  environment: v as ConnectProcessorRequest["environment"],
+                })
               }
             >
               <SelectTrigger>
@@ -142,6 +144,58 @@ export function ConnectDialog({ onConnect }: ConnectDialogProps) {
               placeholder="100200300"
             />
           </div>
+
+          <div className="space-y-2">
+            <Label> Mode</Label>
+            <Select
+              value={formData.ingest_mode}
+              onValueChange={(v) =>
+                setFormData({
+                  ...formData,
+                  ingest_mode: v as ConnectProcessorRequest["ingest_mode"],
+                  // Reset interval when switching away from API_PULL so a stale
+                  // value doesn't get silently submitted alongside WEBHOOK mode
+                  pull_interval_minutes:
+                    v === "API_PULL"
+                      ? (formData.pull_interval_minutes ?? 30)
+                      : null,
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="WEBHOOK">Webhook (recommended)</SelectItem>
+                <SelectItem value="API_PULL">API Pull (polling)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Webhook mode receives transactions as they happen. API Pull polls
+              the processor on an interval instead.
+            </p>
+          </div>
+
+          {isApiPull && (
+            <div className="space-y-2">
+              <Label>Pull Interval (minutes)</Label>
+              <Input
+                type="number"
+                min={1}
+                value={formData.pull_interval_minutes ?? ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    pull_interval_minutes: e.target.value
+                      ? Number(e.target.value)
+                      : null,
+                  })
+                }
+                placeholder="30"
+                required
+              />
+            </div>
+          )}
 
           <Button type="submit" className="w-full">
             Connect

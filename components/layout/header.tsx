@@ -21,14 +21,26 @@ import type { RootState } from "@/lib/store"
 import { MobileNav } from "./mobile-nav"
 
 const pageTitles: Record<string, { title: string; subtitle: string }> = {
-  "/dashboard/": { title: "Echo Console", subtitle: "Dashboard Overview" },
-  "/dashboard/soundboard": { title: "Soundboard", subtitle: "Payment Connections" },
-  "/dashboard/statements": { title: "Statements", subtitle: "Bank Statement Upload" },
+  "/dashboard/": { title: "Dashboard", subtitle: "Dashboard Overview" },
+  "/dashboard/soundboard": {
+    title: "Payment Gateways",
+    subtitle: "Payment Connections",
+  },
+  "/dashboard/statements": {
+    title: "Statements",
+    subtitle: "Bank Statement Upload",
+  },
   "/dashboard/ledger": { title: "Ledger", subtitle: "Bank Ledger Entries" },
-  "/dashboard/unmatched": { title: "Distortions", subtitle: "Unmatched Settlements" },
-  "/dashboard/insights": { title: "Insights", subtitle: "Natural Language Query" },
+  "/dashboard/unmatched": {
+    title: "Distortions",
+    subtitle: "Unmatched Settlements",
+  },
+  "/dashboard/insights": {
+    title: "Insights",
+    subtitle: "Natural Language Query",
+  },
   "/dashboard/settings": { title: "Settings", subtitle: "Configuration" },
-}
+};
 
 export function Header() {
   const pathname = usePathname()

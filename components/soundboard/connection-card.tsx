@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Power, Trash2, Copy, Check, Radio } from "lucide-react";
+import { Power, Trash2, Copy, Check, Radio, RefreshCwIcon } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusIndicator } from "./status-indicator";
 import { useToast } from "@/lib/hooks/use-toast";
 import type { PayfacConnection } from "@/types";
+import { usePullPayfacTransactionsMutation } from "@/lib/store/api/echo-api";
 
 interface ConnectionCardProps {
   connection: PayfacConnection;
@@ -20,16 +21,32 @@ export function ConnectionCard({
   onToggle,
   onDisconnect,
 }: ConnectionCardProps) {
+  const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const { success } = useToast();
-
+  const [pullPayfacTransactions] = usePullPayfacTransactionsMutation();
   const handleCopyWebhook = () => {
     navigator.clipboard.writeText(connection.webhook_url);
     setCopied(true);
     success("Webhook URL copied");
     setTimeout(() => setCopied(false), 2000);
   };
+  const refresh = async (id: string) => {
+    setLoading(true);
+    const resp = await pullPayfacTransactions(id);
+    console.log("resp", resp);
+    setLoading(false);
+    success(resp.data?.message || "Updated");
+  };
 
+  const handleActiviation = async () => {
+    setLoading(true);
+
+    await onToggle(connection.id);
+    setLoading(false);
+  };
+
+  console.log("connection", connection);
   return (
     <motion.div
       layout
@@ -54,7 +71,15 @@ export function ConnectionCard({
                 </p>
               </div>
             </div>
-            <StatusIndicator status={connection.status} />
+            <div
+              onClick={() => refresh(connection.id)}
+              className=" bg-blue-50 p-2 rounded-xl"
+            >
+              <RefreshCwIcon
+                className={`${loading ? "animate-spin duration-1000 transition-all ease-in-out" : ""} text-blue-500 cursor-pointer`}
+              />
+            </div>
+            {/* <StatusIndicator status={connection.status} /> */}
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -81,7 +106,7 @@ export function ConnectionCard({
               variant="outline"
               size="sm"
               className="w-full xs:flex-1"
-              onClick={() => onToggle(connection.id)}
+              onClick={handleActiviation}
             >
               <Power className="h-3.5 w-3.5 mr-1" />
               {connection.is_active ? "Deactivate" : "Activate"}
@@ -97,9 +122,9 @@ export function ConnectionCard({
             </Button>
           </div>
 
-          {connection.last_sync_at && (
+          {connection?.last_pulled_at && (
             <p className="text-xs text-muted-foreground">
-              Last sync: {new Date(connection.last_sync_at).toLocaleString()}
+              Last sync: {new Date(connection?.last_pulled_at).toLocaleString()}
             </p>
           )}
         </CardContent>

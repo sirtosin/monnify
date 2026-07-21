@@ -32,7 +32,7 @@ const navItems = [
     themeLabel: "Echo Console",
   },
   {
-    label: "Soundboard",
+    label: "Payment Gateways",
     href: "/dashboard/soundboard",
     icon: "Radio",
     themeLabel: "Payment Connections",

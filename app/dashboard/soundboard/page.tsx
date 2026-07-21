@@ -90,7 +90,9 @@ export default function SoundboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Soundboard</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Payment Gateways
+          </h2>
           <p className="text-muted-foreground">
             Manage your payment processor connections
           </p>
@@ -120,5 +122,5 @@ export default function SoundboardPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

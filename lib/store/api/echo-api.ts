@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type {
   ApiResponse,
   PaginatedResponse,
@@ -9,7 +9,9 @@ import type {
   LinkMonoRequest,
   InsightQueryRequest,
   ReconciliationFilter,
-} from "@/types/api"
+  UpdatePayfacConnectionRequest,
+  ReconciliationSchedule,
+} from "@/types/api";
 import type {
   User,
   PayfacConnection,
@@ -20,19 +22,19 @@ import type {
   MonoConnection,
   InsightQuery,
   AuditEntry,
-} from "@/types"
+} from "@/types";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
   prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as { auth: { token: string } }).auth.token
+    const token = (getState() as { auth: { token: string } }).auth.token;
     if (token) {
-      headers.set("authorization", `Bearer ${token}`)
+      headers.set("authorization", `Bearer ${token}`);
     }
-    headers.set("Accept", "application/json")
-    return headers
+    headers.set("Accept", "application/json");
+    return headers;
   },
-})
+});
 
 export const echoApi = createApi({
   reducerPath: "echoApi",
@@ -47,6 +49,7 @@ export const echoApi = createApi({
     "Mono",
     "Insights",
     "Audit",
+    "Schedule",
   ],
   endpoints: (builder) => ({
     // Auth endpoints
@@ -83,10 +86,35 @@ export const echoApi = createApi({
       query: () => "/payfac-connections",
       providesTags: ["Connections"],
     }),
-    connectProcessor: builder.mutation<ApiResponse<PayfacConnection>, ConnectProcessorRequest>({
+    connectProcessor: builder.mutation<
+      ApiResponse<PayfacConnection>,
+      ConnectProcessorRequest
+    >({
       query: (body) => ({
         url: "/payfac-connections",
         method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Connections"],
+    }),
+    pullPayfacTransactions: builder.mutation<
+      ApiResponse<PayfacConnection>,
+     string 
+    >({
+      query: (id) => ({
+        url: `/payfac-connections/${id}/pull`,
+        method: "POST",
+      }),
+
+      invalidatesTags: ["Connections", "Ledger", "Dashboard"],
+    }),
+    updatePayfacConnection: builder.mutation<
+      ApiResponse<PayfacConnection>,
+      { id: string; body: UpdatePayfacConnectionRequest }
+    >({
+      query: ({ id, body }) => ({
+        url: `/payfac-connections/${id}`,
+        method: "PATCH",
         body,
       }),
       invalidatesTags: ["Connections"],
@@ -123,9 +151,22 @@ export const echoApi = createApi({
       }),
       invalidatesTags: ["Statements", "Ledger", "Dashboard"],
     }),
-
+    updateReconciliationSchedule: builder.mutation<
+      ApiResponse<ReconciliationSchedule>,
+      ReconciliationSchedule
+    >({
+      query: (body) => ({
+        url: "/reconciliation/schedule",
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Schedule"],
+    }),
     // Ledger endpoints
-    getLedgerEntries: builder.query<ApiResponse<LedgerEntry[]>, ReconciliationFilter | void>({
+    getLedgerEntries: builder.query<
+      ApiResponse<LedgerEntry[]>,
+      ReconciliationFilter | void
+    >({
       query: (params) => ({
         url: "/bank-ledger-entries",
         params: params || undefined,
@@ -138,7 +179,10 @@ export const echoApi = createApi({
       query: () => "/mono/connections",
       providesTags: ["Mono"],
     }),
-    linkMonoAccount: builder.mutation<ApiResponse<MonoConnection>, LinkMonoRequest>({
+    linkMonoAccount: builder.mutation<
+      ApiResponse<MonoConnection>,
+      LinkMonoRequest
+    >({
       query: (body) => ({
         url: "/mono/link",
         method: "POST",
@@ -173,9 +217,18 @@ export const echoApi = createApi({
       query: () => "/dashboard/metrics",
       providesTags: ["Dashboard"],
     }),
-
+    getReconciliationSchedule: builder.query<
+      ApiResponse<ReconciliationSchedule>,
+      void
+    >({
+      query: () => "/reconciliation/schedule",
+      providesTags: ["Schedule"],
+    }),
     // Insights endpoints
-    executeInsightQuery: builder.mutation<ApiResponse<InsightQuery>, InsightQueryRequest>({
+    executeInsightQuery: builder.mutation<
+      ApiResponse<InsightQuery>,
+      InsightQueryRequest
+    >({
       query: (body) => ({
         url: "/insights/query",
         method: "POST",
@@ -189,8 +242,7 @@ export const echoApi = createApi({
       providesTags: ["Audit"],
     }),
   }),
-})
-
+});
 export const {
   useRegisterMutation,
   useLoginMutation,
@@ -198,6 +250,8 @@ export const {
   useLogoutMutation,
   useGetConnectionsQuery,
   useConnectProcessorMutation,
+  useUpdatePayfacConnectionMutation,
+  usePullPayfacTransactionsMutation,
   useToggleConnectionMutation,
   useDisconnectProcessorMutation,
   useGetStatementsQuery,
@@ -209,7 +263,9 @@ export const {
   useSyncMonoAccountMutation,
   useUnlinkMonoAccountMutation,
   useRunReconciliationMutation,
+  useGetReconciliationScheduleQuery,
+  useUpdateReconciliationScheduleMutation,
   useGetDashboardMetricsQuery,
   useExecuteInsightQueryMutation,
   useGetAuditTrailQuery,
-} = echoApi
+} = echoApi;

@@ -26,6 +26,7 @@ import { resetInsights } from "@/lib/store/slices/insights-slice";
 import type { RootState } from "@/lib/store";
 import { useLogoutMutation } from "@/lib/store/api/echo-api";
 import { useRouter } from "next/navigation";
+import { ReconciliationScheduleCard } from "@/components/settings/reconciliation-schedule-card";
 
 export default function SettingsPage() {
   const dispatch = useDispatch();
@@ -53,7 +54,7 @@ export default function SettingsPage() {
         <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
         <p className="text-muted-foreground">Configure your Echo experience</p>
       </div>
-
+      <ReconciliationScheduleCard />
       <div className="grid gap-6 max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
