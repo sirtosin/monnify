@@ -31,9 +31,9 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
     subtitle: "Bank Statement Upload",
   },
   "/dashboard/ledger": { title: "Ledger", subtitle: "Bank Ledger Entries" },
-  "/dashboard/unmatched": {
-    title: "Distortions",
-    subtitle: "Unmatched Settlements",
+  "/dashboard/transactions": {
+    title: "Transactions",
+    subtitle: "transactions",
   },
   "/dashboard/insights": {
     title: "Insights",

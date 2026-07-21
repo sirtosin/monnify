@@ -124,3 +124,14 @@ export interface DashboardMetricsResponse {
     unreconciled_entries: number;
   };
 }
+export interface TransactionFilter {
+  status?: "SUCCESS" | "PENDING" | "SETTLED" | "FAILED";
+  payfac_source?: string;
+  settled?: boolean;
+  settlement_id?: string;
+  reference?: string;
+  from?: string;
+  to?: string;
+  per_page?: number;
+  page?: number;
+}

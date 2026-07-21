@@ -44,11 +44,11 @@ export interface PayfacConnection {
   created_at: string;
   last_pulled_at: string | null;
   ingest_mode: string;
-  pull_interval_minutes:number
+  pull_interval_minutes: number;
 }
 
 // Statement Types
-export interface BankStatement{
+export interface BankStatement {
   id: string;
   bank_name: string;
   file_name: string;
@@ -231,5 +231,18 @@ export interface MonoConnection {
   account_number: string;
   status: ConnectionStatus;
   last_synced_at: string | null;
+  created_at: string;
+}
+export interface Transaction {
+  id: string;
+  payfac_source: string;
+  processor_reference: string;
+  amount: string;
+  fee: string;
+  net_amount: string;
+  status: "SUCCESS" | "PENDING" | "SETTLED" | "FAILED";
+  paid_at: string;
+  settlement_id: string | null;
+  is_settled: boolean;
   created_at: string;
 }

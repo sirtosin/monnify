@@ -11,6 +11,7 @@ import type {
   ReconciliationFilter,
   UpdatePayfacConnectionRequest,
   ReconciliationSchedule,
+  TransactionFilter,
 } from "@/types/api";
 import type {
   User,
@@ -22,6 +23,7 @@ import type {
   MonoConnection,
   InsightQuery,
   AuditEntry,
+  Transaction,
 } from "@/types";
 
 const baseQuery = fetchBaseQuery({
@@ -50,6 +52,7 @@ export const echoApi = createApi({
     "Insights",
     "Audit",
     "Schedule",
+    "Transactions",
   ],
   endpoints: (builder) => ({
     // Auth endpoints
@@ -99,7 +102,7 @@ export const echoApi = createApi({
     }),
     pullPayfacTransactions: builder.mutation<
       ApiResponse<PayfacConnection>,
-     string 
+      string
     >({
       query: (id) => ({
         url: `/payfac-connections/${id}/pull`,
@@ -224,6 +227,17 @@ export const echoApi = createApi({
       query: () => "/reconciliation/schedule",
       providesTags: ["Schedule"],
     }),
+    getTransactions: builder.query<
+      ApiResponse<Transaction>,
+      TransactionFilter | void
+    >({
+      query: () => "/transactions",
+      providesTags: ["Transactions"],
+    }),
+    getTransaction: builder.query<ApiResponse<Transaction>, string>({
+      query: (id) => `/transactions/${id}`,
+      providesTags: ["Transactions"],
+    }),
     // Insights endpoints
     executeInsightQuery: builder.mutation<
       ApiResponse<InsightQuery>,
@@ -245,6 +259,8 @@ export const echoApi = createApi({
 });
 export const {
   useRegisterMutation,
+  useGetTransactionsQuery,
+  useGetTransactionQuery,
   useLoginMutation,
   useGetMeQuery,
   useLogoutMutation,

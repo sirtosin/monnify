@@ -64,8 +64,7 @@ function validate(formData: ConnectProcessorRequest): FormErrors {
   if (formData.ingest_mode === "API_PULL") {
     const interval = formData.pull_interval_minutes;
     if (interval === null || interval === undefined || Number.isNaN(interval)) {
-      errors.pull_interval_minutes =
-        "Pull interval is required for API Pull mode.";
+      errors.pull_interval_minutes = "Pull interval is required for API Pull mode.";
     } else if (!Number.isInteger(interval)) {
       errors.pull_interval_minutes = "Pull interval must be a whole number.";
     } else if (interval < MIN_PULL_INTERVAL || interval > MAX_PULL_INTERVAL) {
@@ -84,7 +83,7 @@ export function ConnectDialog({ onConnect }: ConnectDialogProps) {
 
   const updateField = <K extends keyof ConnectProcessorRequest>(
     key: K,
-    value: ConnectProcessorRequest[K],
+    value: ConnectProcessorRequest[K]
   ) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
     // Clear that field's error as soon as the user edits it
@@ -141,7 +140,7 @@ export function ConnectDialog({ onConnect }: ConnectDialogProps) {
               onValueChange={(v) =>
                 updateField(
                   "payfac_source",
-                  v as ConnectProcessorRequest["payfac_source"],
+                  v as ConnectProcessorRequest["payfac_source"]
                 )
               }
             >
@@ -165,7 +164,7 @@ export function ConnectDialog({ onConnect }: ConnectDialogProps) {
               onValueChange={(v) =>
                 updateField(
                   "environment",
-                  v as ConnectProcessorRequest["environment"],
+                  v as ConnectProcessorRequest["environment"]
                 )
               }
             >
@@ -228,10 +227,7 @@ export function ConnectDialog({ onConnect }: ConnectDialogProps) {
             <Select
               value={formData.ingest_mode}
               onValueChange={(v) =>
-                updateField(
-                  "ingest_mode",
-                  v as ConnectProcessorRequest["ingest_mode"],
-                )
+                updateField("ingest_mode", v as ConnectProcessorRequest["ingest_mode"])
               }
             >
               <SelectTrigger>
@@ -259,14 +255,12 @@ export function ConnectDialog({ onConnect }: ConnectDialogProps) {
                 onChange={(e) =>
                   updateField(
                     "pull_interval_minutes",
-                    e.target.value ? Number(e.target.value) : null,
+                    e.target.value ? Number(e.target.value) : null
                   )
                 }
                 placeholder="30"
                 aria-invalid={!!errors.pull_interval_minutes}
-                className={
-                  errors.pull_interval_minutes ? "border-destructive" : ""
-                }
+                className={errors.pull_interval_minutes ? "border-destructive" : ""}
               />
               {errors.pull_interval_minutes && (
                 <p className="text-xs text-destructive">

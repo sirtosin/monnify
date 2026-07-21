@@ -84,7 +84,6 @@ export default function StatementsPage() {
       formData.append("bank_name", bankName);
       formData.append("statement", file);
       const result = await uploadStatement(formData).unwrap();
-      console.log('result', result)
       if (result.data) {
         dispatch(addStatement(result.data));
         setLastUploaded(result.data);

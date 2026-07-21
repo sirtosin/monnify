@@ -10,6 +10,7 @@ import { useToast } from "@/lib/hooks/use-toast";
 import type { PayfacConnection } from "@/types";
 import { usePullPayfacTransactionsMutation } from "@/lib/store/api/echo-api";
 
+
 interface ConnectionCardProps {
   connection: PayfacConnection;
   onToggle: (id: string) => void;
@@ -23,7 +24,7 @@ export function ConnectionCard({
 }: ConnectionCardProps) {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { success } = useToast();
+  const { success, error } = useToast();
   const [pullPayfacTransactions] = usePullPayfacTransactionsMutation();
   const handleCopyWebhook = () => {
     navigator.clipboard.writeText(connection.webhook_url);
@@ -33,9 +34,13 @@ export function ConnectionCard({
   };
   const refresh = async (id: string) => {
     setLoading(true);
-    const resp = await pullPayfacTransactions(id);
+    const resp:any = await pullPayfacTransactions(id);
     setLoading(false);
-    success(resp.data?.message || "Updated");
+    if (resp?.data?.success) {
+      success(resp.data?.message || "Success");
+    } else {
+      error(resp?.error?.data?.message || "Something went wrong");
+    }
   };
 
   const handleActiviation = async () => {

@@ -49,6 +49,12 @@ const navItems = [
     icon: "BookOpen",
     themeLabel: "Bank Ledger",
   },
+  {
+    label: "Transactions",
+    href: "/dashboard/transactions",
+    icon: "AlertTriangle",
+    themeLabel: "transactions",
+  },
   // {
   //   label: "Distortions",
   //   href: "/dashboard/unmatched",
