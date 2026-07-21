@@ -1,47 +1,42 @@
-"use client"
+"use client";
 
-import { useCallback, useState } from "react"
-import { useDropzone } from "react-dropzone"
-import { motion, AnimatePresence } from "framer-motion"
-import { Upload, FileSpreadsheet, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { BANKS } from "@/lib/utils/constants"
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { motion, AnimatePresence } from "framer-motion";
+import { Upload, FileSpreadsheet, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { BankCombobox } from "@/components/ui/bank-combobox";
+import { BANKS } from "@/lib/utils/constants";
 
 interface UploadZoneProps {
-  onUpload: (file: File, bankName: string) => void
-  isUploading: boolean
+  onUpload: (file: File, bankName: string) => void;
+  isUploading: boolean;
 }
 
 export function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
-  const [file, setFile] = useState<File | null>(null)
-  const [bankName, setBankName] = useState("GTBANK")
+  const [file, setFile] = useState<File | null>(null);
+  const [bankName, setBankName] = useState("Guaranty Trust Bank (GTBank)");
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles[0]) setFile(acceptedFiles[0])
-  }, [])
+    if (acceptedFiles[0]) setFile(acceptedFiles[0]);
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'text/csv': ['.csv'],
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-      'application/vnd.ms-excel': ['.xls'],
+      "text/csv": [".csv"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+        ".xlsx",
+      ],
+      "application/vnd.ms-excel": [".xls"],
     },
     maxFiles: 1,
     disabled: isUploading,
-  })
+  });
 
   const handleUpload = () => {
-    if (file) onUpload(file, bankName)
-  }
+    if (file) onUpload(file, bankName);
+  };
 
   return (
     <div className="space-y-4">
@@ -60,7 +55,9 @@ export function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
           </div>
           <div>
             <p className="text-sm font-medium">
-              {isDragActive ? "Drop your statement here" : "Drag & drop your bank statement"}
+              {isDragActive
+                ? "Drop your statement here"
+                : "Drag & drop your bank statement"}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Supports CSV, XLSX, and XLS files
@@ -80,9 +77,17 @@ export function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
             <FileSpreadsheet className="h-5 w-5 text-primary" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{file.name}</p>
-              <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(1)} KB</p>
+              <p className="text-xs text-muted-foreground">
+                {(file.size / 1024).toFixed(1)} KB
+              </p>
             </div>
-            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => setFile(null)} disabled={isUploading}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 shrink-0"
+              onClick={() => setFile(null)}
+              disabled={isUploading}
+            >
               <X className="h-4 w-4" />
             </Button>
           </motion.div>
@@ -91,21 +96,21 @@ export function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
 
       {file && (
         <div className="flex items-center gap-3">
-          <Select value={bankName} onValueChange={setBankName} disabled={isUploading}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {BANKS.map((bank) => (
-                <SelectItem key={bank} value={bank}>{bank}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={handleUpload} disabled={isUploading} className="flex-1">
+          <BankCombobox
+            banks={BANKS}
+            value={bankName}
+            onChange={setBankName}
+            disabled={isUploading}
+          />
+          <Button
+            onClick={handleUpload}
+            disabled={isUploading}
+            className="flex-1"
+          >
             {isUploading ? "Processing..." : "Upload Statement"}
           </Button>
         </div>
       )}
     </div>
-  )
+  );
 }

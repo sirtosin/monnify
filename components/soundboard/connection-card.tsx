@@ -71,11 +71,12 @@ export function ConnectionCard({
             </div>
             <div
               onClick={() => refresh(connection.id)}
-              className=" bg-blue-50 p-2 rounded-xl"
+              className=" cursor-pointer flex items-center space-x-3 bg-blue-50 p-2 rounded-xl"
             >
               <RefreshCwIcon
-                className={`${loading ? "animate-spin duration-1000 transition-all ease-in-out" : ""} text-blue-500 cursor-pointer`}
+                className={`${loading ? "animate-spin duration-1000 transition-all ease-in-out" : ""}  text-blue-500 `}
               />
+              <small className="text-blue-500 ">Refresh Transactions</small>
             </div>
             {/* <StatusIndicator status={connection.status} /> */}
           </div>

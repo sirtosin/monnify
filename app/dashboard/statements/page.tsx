@@ -28,6 +28,7 @@ import type { RootState } from "@/lib/store";
 import type { BankStatement } from "@/types";
 import { MonoConnectButton } from "@/components/statements/mono-connect-button";
 import { MonoConnectionsList } from "@/components/statements/mono-connections-list";
+import { useRouter } from "next/navigation";
 
 type StatementSource = "upload" | "mono";
 
@@ -36,7 +37,7 @@ export default function StatementsPage() {
   const { success } = useToast();
   const [lastUploaded, setLastUploaded] = useState<BankStatement | null>(null);
   const [source, setSource] = useState<StatementSource>("upload");
-
+  const route = useRouter();
   const {
     statements: localStatements,
     isUploading,
@@ -77,34 +78,21 @@ export default function StatementsPage() {
       dispatch(setUploadProgress(((i + 1) / steps.length) * 100));
     }
 
-    const newStatement: BankStatement = {
-      id: `stmt_${Date.now()}`,
-      bank_name: bankName,
-      file_name: file.name,
-      imported_rows: 42,
-      matched_count: 38,
-      review_count: 3,
-      unmatched_count: 1,
-      status: "completed",
-      created_at: new Date().toISOString(),
-    };
-
     // Try API first, fallback to local
     try {
       const formData = new FormData();
       formData.append("bank_name", bankName);
       formData.append("statement", file);
       const result = await uploadStatement(formData).unwrap();
+      console.log('result', result)
       if (result.data) {
         dispatch(addStatement(result.data));
         setLastUploaded(result.data);
       } else {
-        dispatch(addStatement(newStatement));
-        setLastUploaded(newStatement);
+    
       }
     } catch (err) {
-      dispatch(addStatement(newStatement));
-      setLastUploaded(newStatement);
+
     }
 
     dispatch(setUploading(false));
@@ -178,7 +166,7 @@ export default function StatementsPage() {
               >
                 <UploadSummary
                   statement={lastUploaded}
-                  onViewLedger={() => {}}
+                  onViewLedger={() => route.push("/dashboard/ledger")}
                 />
               </motion.div>
             )}

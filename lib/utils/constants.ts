@@ -30,9 +30,44 @@ export const SUGGESTED_QUERIES = [
 ]
 
 export const BANKS = [
-  "GTBANK", "ZENITH", "ACCESS", "UBA", "FIRST_BANK",
-  "FIDELITY", "ECOBANK", "UNION", "STANBIC", "WEMA",
-]
+  "Access Bank",
+  "Citibank Nigeria",
+  "Ecobank Nigeria",
+  "Fidelity Bank",
+  "First Bank of Nigeria",
+  "First City Monument Bank (FCMB)",
+  "Globus Bank",
+  "Guaranty Trust Bank (GTBank)",
+  "Heritage Bank",
+  "Keystone Bank",
+  "Optimus Bank",
+  "Parallex Bank",
+  "Polaris Bank",
+  "Premium Trust Bank",
+  "Providus Bank",
+  "Signature Bank",
+  "Stanbic IBTC Bank",
+  "Standard Chartered Bank Nigeria",
+  "Sterling Bank",
+  "SunTrust Bank",
+  "Titan Trust Bank",
+  "Union Bank of Nigeria",
+  "United Bank for Africa (UBA)",
+  "Unity Bank",
+  "Wema Bank",
+  "Zenith Bank",
+  // Merchant / digital banks commonly used for settlements
+  "Kuda Bank",
+  "Moniepoint MFB",
+  "Opay (Paycom)",
+  "PalmPay",
+  "Rubies MFB",
+  "VFD Microfinance Bank",
+  // Microfinance / other licensed banks seen in statements
+  "Jaiz Bank",
+  "Lotus Bank",
+  "TAJ Bank",
+];
 
 export const PAYFAC_SOURCES = [
   { value: "MONNIFY", label: "Monnify", color: "#0ea5e9" },
