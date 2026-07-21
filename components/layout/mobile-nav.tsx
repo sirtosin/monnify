@@ -52,7 +52,7 @@ const navItems = [
   {
     label: "Transactions",
     href: "/dashboard/transactions",
-    icon: "AlertTriangle",
+    icon: "ArrowLeftRight",
     themeLabel: "transactions",
   },
   // {

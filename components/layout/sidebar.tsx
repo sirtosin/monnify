@@ -36,6 +36,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   AlertTriangle,
   Search,
   Settings,
+  
 };
 
 const navItems = [
@@ -66,7 +67,7 @@ const navItems = [
   {
     label: "Transactions",
     href: "/dashboard/transactions",
-    icon: "AlertTriangle",
+    icon: "ArrowLeftRight",
     themeLabel: "transactions",
   },
   // {
